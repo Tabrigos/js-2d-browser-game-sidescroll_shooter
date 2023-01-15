@@ -206,7 +206,7 @@ window.addEventListener('load', function(){
             this.score = 0;
             this.winningScore = 10;
             this.gameTime = 0;
-            this.timeLimit = 5000;
+            this.timeLimit = 50000;
         }
         update(deltaTime){
             if (!this.gameOver) {
