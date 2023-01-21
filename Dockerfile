@@ -1,2 +1,2 @@
-FROM arm64v8/nginx:1.23.3-alpine
+FROM arm64v8/nginx:latest
 COPY . /usr/share/nginx/html
