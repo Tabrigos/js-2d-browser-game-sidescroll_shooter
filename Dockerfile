@@ -1,2 +1,2 @@
-FROM arm64v8/nginx:latest
+FROM nginx:latest
 COPY . /usr/share/nginx/html
