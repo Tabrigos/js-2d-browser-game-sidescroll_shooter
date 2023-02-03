@@ -1,23 +1,27 @@
-window.addEventListener('load', function(){
+window.addEventListener('load', function () {
     //canvas setup
     const canvas = this.document.getElementById('canvas1');
     const ctx = canvas.getContext('2d');
-    canvas.width = 500;
-    canvas.height = 500;
+
+    canvas.width = 700;
+    canvas.height = 700;
+
+    const up = 'w'
+    const down = 's'
 
     class InputHandler {
-        constructor(game){
+        constructor(game) {
             this.game = game;
-            window.addEventListener('keydown', e =>{
-                if ((   (e.key === 'ArrowUp') ||
-                        (e.key === 'ArrowDown') ||
-                        (e.key === ' ')               
-                ) && this.game.keys.indexOf(e.key) === -1){
+            window.addEventListener('keydown', e => {
+                if (((e.key === up) ||
+                    (e.key === down) ||
+                    (e.key === ' ')
+                ) && this.game.keys.indexOf(e.key) === -1) {
                     this.game.keys.push(e.key);
                 }
             });
-            window.addEventListener('keyup', e =>{
-                if (this.game.keys.indexOf(e.key) > -1){
+            window.addEventListener('keyup', e => {
+                if (this.game.keys.indexOf(e.key) > -1) {
                     this.game.keys.splice(this.game.keys.indexOf(e.key), 1);
                 }
             });
@@ -25,7 +29,7 @@ window.addEventListener('load', function(){
     }
 
     class Projectile {
-        constructor(game, x, y){
+        constructor(game, x, y) {
             this.game = game;
             this.x = x;
             this.y = y;
@@ -34,16 +38,16 @@ window.addEventListener('load', function(){
             this.speed = 3;
             this.markedForDeletion = false;
         }
-        update(){
+        update() {
             this.x += this.speed;
-            if(this.x > game.width * 0.8){
+            if (this.x > game.width * 0.8) {
                 this.markedForDeletion = true;
-            } 
+            }
         }
-        draw(context){
+        draw(context) {
             context.fillStyle = 'yellow';
             context.fillRect(this.x, this.y, this.width, this.height);
-        }        
+        }
     }
 
     class Particle {
@@ -51,28 +55,30 @@ window.addEventListener('load', function(){
     }
 
     class Player {
-        constructor(game){
+        constructor(game) {
             this.game = game;
-            this.width = 120;
-            this.height = 190;
-            this.x = 20;
-            this.y = 100;
+            this.width = 61;
+            this.height = 67;
+            this.x = 50;
+            this.y = 350;
             this.speedY = 0;
-            this.maxSpeed = 3;
+            this.maxSpeed = 4;
             this.projectiles = [];
             this.fireTimer = 0;
             this.fireRate = 150;
+            this.image = document.getElementById("player");
+            this.shootFrom = true
         }
-        update(deltaTime){
-            if (this.game.keys.includes('ArrowUp')){
-                 this.speedY = -this.maxSpeed;
-            } else if (this.game.keys.includes('ArrowDown')){
+        update(deltaTime) {
+            if (this.game.keys.includes(up) && this.y > 0) {
+                this.speedY = -this.maxSpeed;
+            } else if (this.game.keys.includes(down) && this.y < canvas.height - this.height) {
                 this.speedY = this.maxSpeed;
             } else this.speedY = 0;
             this.y += this.speedY;
             if (this.game.keys.includes(' ')) {
                 if (this.fireTimer > this.fireRate) {
-                    this.game.player.shootTop();
+                    this.game.player.shoot();
                     this.fireTimer = 0;
                 } else {
                     this.fireTimer += deltaTime;
@@ -84,51 +90,51 @@ window.addEventListener('load', function(){
             });
             this.projectiles = this.projectiles.filter(projectile => !projectile.markedForDeletion);
         }
-        draw(context){
-            context.fillStyle = 'green';
-            context.fillRect(this.x, this.y, this.width, this.height);
+        draw(context) {
+
+            context.drawImage(this.image, this.x, this.y, this.width, this.height);
             this.projectiles.forEach(projectile => {
                 projectile.draw(context);
             });
         }
-        shootTop(){
-            if (this.game.ammo > 0 ){
-                this.projectiles.push(new Projectile(this.game, this.x + 80, this.y + 30));
-                //console.log(this.projectiles);
+        shoot() {
+            if (this.game.ammo > 0) {
+                this.projectiles.push(new Projectile(this.game, this.x + this.width, this.y - 1.5 + (this.shootFrom ? this.height / 6 * 1.8 : this.height / 6 * 4.2)));
+                this.shootFrom = this.shootFrom ? false : true
                 this.game.ammo--;
             }
         }
     }
 
     class Enemy {
-        constructor(game){
+        constructor(game) {
             this.game = game;
             this.x = this.game.width;
             this.speedX = Math.random() * -1.5 - 0.5;
             this.markedForDeletion = false;
             this.lives = 5;
             this.score = this.lives;
+            this.image = document.getElementById("enemy");
         }
-        update(){
+        update() {
             this.x += this.speedX;
-            if(this.x + this.width < 0){
+            if (this.x + this.width < 0) {
                 this.markedForDeletion = true;
             }
         }
-        draw(context){
-            context.fillStyle = 'red';
-            context.fillRect(this.x, this.y, this.width, this.height);
+        draw(context) {
+            context.drawImage(this.image, this.x, this.y, this.width, this.height);
             context.fillStyle = 'black';
-            context.font = '20px Helvetica';
+            context.font = '20px Segoe Script';
             context.fillText(this.lives, this.x, this.y);
         }
     }
 
     class Angler1 extends Enemy {
-        constructor(game){
+        constructor(game) {
             super(game);
-            this.width = 228 * 0.2;
-            this.height = 169 * 0.2;
+            this.width = 300 * 0.2;
+            this.height = 220 * 0.2;
             this.y = Math.random() * (this.game.height * 0.9 - this.height);
         }
     }
@@ -142,13 +148,13 @@ window.addEventListener('load', function(){
     }
 
     class UI {
-        constructor(game){
+        constructor(game) {
             this.game = game;
             this.fontSize = 25;
-            this.fontFamily = 'Helvetica';
+            this.fontFamily = 'Segoe Script';
             this.color = 'white';
         }
-        draw(context){
+        draw(context) {
             context.save();
             context.fillStyle = this.color;
             context.shadowOffsetX = 2;
@@ -158,7 +164,7 @@ window.addEventListener('load', function(){
             //score
             context.fillText('Score: ' + this.game.score, 20, 40);
             //ammo
-            for (let i = 0; i < this.game.ammo; i++){
+            for (let i = 0; i < this.game.ammo; i++) {
                 context.fillRect(20 + 5 * i, 50, 3, 20);
             }
             //timer on screen
@@ -170,11 +176,11 @@ window.addEventListener('load', function(){
                 let message1;
                 let message2;
                 if (this.game.score >= this.game.winningScore) {
-                    message1 = 'You Win!';
-                    message2 = 'Well done!';
+                    message1 = 'Hai Vinto!';
+                    message2 = 'Ben fatto!';
                 } else {
-                    message1 = 'You lost!';
-                    message2 = 'Try again';
+                    message1 = 'Hai Perso!';
+                    message2 = 'Riprova';
                 }
                 context.font = '50px ' + this.fontFamily;
                 context.fillText(message1, this.game.width * 0.5, this.game.height * 0.5 - 40);
@@ -188,7 +194,7 @@ window.addEventListener('load', function(){
     }
 
     class Game {
-        constructor(width, height){
+        constructor(width, height) {
             this.width = width;
             this.height = height;
             this.player = new Player(this);
@@ -197,18 +203,18 @@ window.addEventListener('load', function(){
             this.keys = [];
             this.enemies = [];
             this.gameOver = false;
-            this.ammo = 20;
-            this.maxAmmo = 50;
+            this.ammo = 40;
+            this.maxAmmo = 70;
             this.ammoTimer = 0;
-            this.ammoInterval = 500;
+            this.ammoInterval = 450;
             this.enemyTimer = 0;
             this.enemyInterval = 1500;
             this.score = 0;
-            this.winningScore = 10;
+            this.winningScore = 50;
             this.gameTime = 0;
-            this.timeLimit = 50000;
+            this.timeLimit = 60000;
         }
-        update(deltaTime){
+        update(deltaTime) {
             if (!this.gameOver) {
                 this.gameTime += deltaTime;
             }
@@ -216,12 +222,13 @@ window.addEventListener('load', function(){
                 this.gameOver = true;
             }
             this.player.update(deltaTime);
-            if (this.ammoTimer > this.ammoInterval){
-                if (this.ammo < this.maxAmmo){
-                    this.ammo ++;
+            if (this.ammoTimer > this.ammoInterval) {
+                if (this.ammo < this.maxAmmo) {
+                    this.ammo++;
                     this.ammoTimer = 0;
-                } 
+                }
             } else {
+
                 this.ammoTimer += deltaTime;
             }
             this.enemies.forEach(enemy => {
@@ -246,28 +253,28 @@ window.addEventListener('load', function(){
                 });
             });
             this.enemies = this.enemies.filter(enemy => !enemy.markedForDeletion);
-            if (this.enemyTimer > this.enemyInterval && !this.gameOver){
+            if (this.enemyTimer > this.enemyInterval && !this.gameOver) {
                 this.addEnemy();
                 this.enemyTimer = 0;
             } else {
                 this.enemyTimer += deltaTime;
             }
         }
-        draw(context){
+        draw(context) {
             this.player.draw(context);
             this.ui.draw(context);
             this.enemies.forEach(enemy => {
                 enemy.draw(context);
             });
         }
-        addEnemy(){
+        addEnemy() {
             this.enemies.push(new Angler1(this));
         }
-        checkCollision(rect1, rect2){
-            return (    rect1.x < rect2.x + rect2.width &&
-                        rect1.x + rect1.width > rect2.x &&
-                        rect1.y < rect2.y + rect2.height &&
-                        rect1.height + rect1.y > rect2.y
+        checkCollision(rect1, rect2) {
+            return (rect1.x < rect2.x + rect2.width &&
+                rect1.x + rect1.width > rect2.x &&
+                rect1.y < rect2.y + rect2.height &&
+                rect1.height + rect1.y > rect2.y
             );
         }
     }
@@ -275,7 +282,7 @@ window.addEventListener('load', function(){
     const game = new Game(canvas.width, canvas.height);
     let lastTime = 0;
     //animation loop
-    function animate(timeStamp){
+    function animate(timeStamp) {
         const deltaTime = timeStamp - lastTime;
         lastTime = timeStamp;
         ctx.clearRect(0, 0, canvas.width, canvas.height);
