@@ -1,6 +1,6 @@
 * {
-    margin: 0;
-    padding: 0;
+    margin:0;
+    padding:0;
     box-sizing: border-box;
 }
 
@@ -13,17 +13,4 @@
     background: #4d79bc;
     max-width: 100%;
     max-height: 100%;
-}
-
-#player {
-    display: none;
-}
-
-#enemy {
-    display: none;
-}
-
-body {
-
-    background: url(https://i.pinimg.com/originals/c8/fc/c9/c8fcc9e2f84e7859040e6f1e9b468dae.png)no-repeat
 }
